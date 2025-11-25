@@ -43,9 +43,10 @@ namespace API.P.Movies.Services
             return _mapper.Map<ICollection<CategoryDto>>(categories); //Mapeo la lista de categorías a una lista de categorías DTO
         }
 
-        public Task<CategoryDto> GetCategoryAsync(int id)
+        public async Task<CategoryDto> GetCategoryAsync(int id)
         {
-            throw new NotImplementedException();
+            var category = await _categoryRepository.GetCategoryAsync(id); //Llamo al método del repositorio
+            return _mapper.Map<CategoryDto>(category); //Mapeo la categoría a un CategoryDto y lo retorno
         }
 
         public Task<bool> UpdateCategoryAsync(Category category)
