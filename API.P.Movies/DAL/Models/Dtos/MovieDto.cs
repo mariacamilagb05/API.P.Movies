@@ -16,7 +16,7 @@ namespace API.P.Movies.DAL.Models.Dtos
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "La clasificación de la película es obligatoria.")]
-        [MaxLength(100, ErrorMessage = "El número máximo de caracteres es de 100.")]
+        [MaxLength(10, ErrorMessage = "El número máximo de caracteres es de 10.")]
         public string Clasification { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
