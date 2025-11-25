@@ -15,7 +15,7 @@ namespace API.P.Movies.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetCategoriesAsync")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -24,5 +24,17 @@ namespace API.P.Movies.Controllers
             var categories = await _categoryService.GetCategoriesAsync();
             return Ok(categories);
         }
+
+        [HttpGet("{id:int}", Name = "GetCategoryAsync")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CategoryDto>> GetCategoryAsync(int id)
+        {
+            var category = await _categoryService.GetCategoryAsync(id);
+            return Ok(category);
+        }
+
     }
 }
