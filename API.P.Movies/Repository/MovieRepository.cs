@@ -42,10 +42,11 @@ namespace API.P.Movies.Repository
 
         public async Task<ICollection<Movie>> GetMoviesAsync()
         {
-            return await _context.Movies
+            var categories = await _context.Movies
                 .AsNoTracking()
                 .OrderBy(m => m.Name)
                 .ToListAsync();
+            return categories;
         }
 
         public async Task<bool> UpdateMovieAsync(Movie movie)

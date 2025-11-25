@@ -38,12 +38,12 @@ namespace API.P.Movies.Services
 
         public async Task<ICollection<CategoryDto>> GetCategoriesAsync()
         {
-            var categories = _categoryRepository.GetCategoriesAsync(); //Llamando el método desde la capa de Repository
+            var categories = await _categoryRepository.GetCategoriesAsync(); //Llamando el método desde la capa de Repository
 
             return _mapper.Map<ICollection<CategoryDto>>(categories); //Mapeo la lista de categorías a una lista de categorías DTO
         }
 
-        public Task<Category> GetCategoryAsync(int id)
+        public Task<CategoryDto> GetCategoryAsync(int id)
         {
             throw new NotImplementedException();
         }
