@@ -3,6 +3,7 @@ using API.P.Movies.DAL.Models.Dtos;
 using API.P.Movies.Repository.IRepository;
 using API.P.Movies.Services.IServices;
 using AutoMapper;
+using Microsoft.Identity.Client;
 
 namespace API.P.Movies.Services
 {
@@ -26,17 +27,17 @@ namespace API.P.Movies.Services
             throw new NotImplementedException();
         }
 
-        public async Task<CategoryDto> CreateCategoryAsync(CategoryCreateDto categoryCreateDto)
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryCreateUpdateDto categoryCreateUpdateDto)
         {
-            var categoryExists = await _categoryRepository.CategoryExistsByNameAsync(categoryCreateDto.Name);
+            var categoryExists = await _categoryRepository.CategoryExistsByNameAsync(categoryCreateUpdateDto.Name);
             
             if (categoryExists)
             {
-                throw new InvalidOperationException($"Ya existe una categoría con el nombre '{categoryCreateDto.Name}'");
+                throw new InvalidOperationException($"Ya existe una categoría con el nombre '{categoryCreateUpdateDto.Name}'");
             }
 
             //Mappear de DTO a la entidad/modelo Category
-            var category = _mapper.Map<Category>(categoryCreateDto);
+            var category = _mapper.Map<Category>(categoryCreateUpdateDto);
 
             //Crear la categoría en la base de datos
             var categoryCreated = await _categoryRepository.CreateCategoryAsync(category);
@@ -68,9 +69,36 @@ namespace API.P.Movies.Services
             return _mapper.Map<CategoryDto>(category); //Mapeo la categoría a un CategoryDto y lo retorno
         }
 
-        public async Task<bool> UpdateCategoryAsync(Category category)
+        public async Task<CategoryDto> UpdateCategoryAsync(CategoryCreateUpdateDto categoryCreateUpdateDto, int id)
         {
-            throw new NotImplementedException();
+            //Verificar si la categoría existe
+            var existingCategory = await _categoryRepository.GetCategoryAsync(id);
+
+            if (existingCategory == null)
+            {
+                throw new KeyNotFoundException($"No se encontró la categoría con Id {id}"); 
+            }
+
+            //Verificar si el nuevo nombre ya está en uso por otra categoría
+            var categoryExistsByName = await _categoryRepository.CategoryExistsByNameAsync(categoryCreateUpdateDto.Name);
+
+            if (categoryExistsByName)
+            {
+                throw new InvalidOperationException($"Ya existe una categoría con el nombre '{categoryCreateUpdateDto.Name}'");
+            }
+
+            //Mappear los cambios del DTO al modelo/entidad
+            _mapper.Map(categoryCreateUpdateDto, existingCategory);
+
+            //Actualizar la categoría en la base de datos
+            var categoryUpdated = await _categoryRepository.UpdateCategoryAsync(existingCategory);
+
+            if (!categoryUpdated)
+            {
+                throw new InvalidOperationException("Ocurrió un error al actualizar la categoría");
+            }
+
+            return _mapper.Map<CategoryDto>(existingCategory);
         }
     }
 }

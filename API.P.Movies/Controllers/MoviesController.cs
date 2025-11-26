@@ -44,7 +44,7 @@ namespace API.P.Movies.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult<MovieDto>> CreateMovieAsync([FromBody] MovieCreateDto movieCreateDto)
+        public async Task<ActionResult<MovieDto>> CreateMovieAsync([FromBody] MovieCreateUpdateDto movieCreateUpdateDto)
         {
             if (!ModelState.IsValid)
             {
@@ -53,7 +53,7 @@ namespace API.P.Movies.Controllers
 
             try
             {
-                var createdMovie = await _movieService.CreateMovieAsync(movieCreateDto);
+                var createdMovie = await _movieService.CreateMovieAsync(movieCreateUpdateDto);
                 return CreatedAtRoute("GetMovieAsync", new {id = createdMovie.Id}, createdMovie);
             }
             catch (InvalidOperationException Ex) when (Ex.Message.Contains("Ya existe"))
@@ -65,5 +65,35 @@ namespace API.P.Movies.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = Ex.Message });
             }
         }
+
+        [HttpPut("{id:int}", Name = "UpdateMovieAsync")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<MovieDto>> UpdateMovieAsync([FromBody] MovieCreateUpdateDto movieCreateUpdateDto, int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedMovie = await _movieService.UpdateMovieAsync(movieCreateUpdateDto, id);
+
+                return Ok(updatedMovie);
+            }
+            catch (InvalidOperationException Ex) when (Ex.Message.Contains("Ya existe"))
+            {
+                return Conflict(new { message = Ex.Message });
+            }
+            catch (Exception Ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = Ex.Message });
+            }
+        }
+
     }
 }

@@ -42,7 +42,7 @@ namespace API.P.Movies.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult<CategoryDto>> CreateCategoryAsync([FromBody] CategoryCreateDto categoryCreateDto)
+        public async Task<ActionResult<CategoryDto>> CreateCategoryAsync([FromBody] CategoryCreateUpdateDto categoryCreateUpdateDto)
         {
             if (!ModelState.IsValid)
             {
@@ -51,7 +51,7 @@ namespace API.P.Movies.Controllers
 
             try
             {
-                var createdCategory = await _categoryService.CreateCategoryAsync(categoryCreateDto);
+                var createdCategory = await _categoryService.CreateCategoryAsync(categoryCreateUpdateDto);
                 return CreatedAtRoute("GetCategoryAsync", new {id = createdCategory.Id}, createdCategory);
             }
             catch (InvalidOperationException Ex) when (Ex.Message.Contains("Ya existe"))
@@ -63,6 +63,35 @@ namespace API.P.Movies.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new {message = Ex.Message});
             }
 
+        }
+
+        [HttpPut("{id:int}", Name = "UpdateCategoryAsync")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CategoryDto>> UpdateCategoryAsync([FromBody] CategoryCreateUpdateDto categoryCreateUpdateDto, int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(categoryCreateUpdateDto, id);
+
+                return Ok(updatedCategory);
+            }
+            catch (InvalidOperationException Ex) when (Ex.Message.Contains("Ya existe"))
+            {
+                return Conflict(new { message = Ex.Message });
+            }
+            catch (Exception Ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = Ex.Message });
+            }
         }
 
     }

@@ -26,17 +26,17 @@ namespace API.P.Movies.Services
         {
             throw new NotImplementedException();
         }
-        public async Task<MovieDto> CreateMovieAsync(MovieCreateDto movieCreateDto)
+        public async Task<MovieDto> CreateMovieAsync(MovieCreateUpdateDto movieCreateUpdateDto)
         {
-            var movieExists = await _movieRepository.MovieExistsByNameAsync(movieCreateDto.Name);
+            var movieExists = await _movieRepository.MovieExistsByNameAsync(movieCreateUpdateDto.Name);
             
             if (movieExists)
             {
-                throw new InvalidOperationException($"Ya existe una película con el nombre '{movieCreateDto.Name}'");
+                throw new InvalidOperationException($"Ya existe una película con el nombre '{movieCreateUpdateDto.Name}'");
             }
 
             //Mappear de DTO a la entidad/modelo Movie
-            var movie = _mapper.Map<Movie>(movieCreateDto);
+            var movie = _mapper.Map<Movie>(movieCreateUpdateDto);
 
             //Crear la película en la base de datos
             var movieCreated = await _movieRepository.CreateMovieAsync(movie);
@@ -68,9 +68,36 @@ namespace API.P.Movies.Services
             return _mapper.Map<ICollection<MovieDto>>(movies); //Mapeo la lista de categorías a una lista de categorías DTO
         }
 
-        public async Task<bool> UpdateMovieAsync(Movie movie)
+        public async Task<MovieDto> UpdateMovieAsync(MovieCreateUpdateDto movieCreateUpdateDto, int id)
         {
-            throw new NotImplementedException();
+            //Verificar si la película existe
+            var existingMovie = await _movieRepository.GetMovieAsync(id);
+            
+            if (existingMovie == null)
+            {
+                throw new KeyNotFoundException($"No se encontró la película con Id {id}");
+            }
+
+            //Verificar si el nuevo nombre ya está en uso por otra película
+            var movieExistsByName = await _movieRepository.MovieExistsByNameAsync(movieCreateUpdateDto.Name);
+
+            if (movieExistsByName)
+            {
+                throw new InvalidOperationException($"Ya existe una película con el nombre '{movieCreateUpdateDto.Name}'");
+            }
+
+            //Mappear los cambios del DTO al modelo/entidad
+            _mapper.Map(movieCreateUpdateDto, existingMovie);
+
+            //Actualizar la película en la base de datos
+            var movieUpdated = await _movieRepository.UpdateMovieAsync(existingMovie);
+
+            if (!movieUpdated)
+            {
+                throw new InvalidOperationException("Ocurrió un error al actualizar la película");
+            }
+
+            return _mapper.Map<MovieDto>(existingMovie);
         }
     }
 }
