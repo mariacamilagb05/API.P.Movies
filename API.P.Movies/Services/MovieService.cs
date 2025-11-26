@@ -52,7 +52,8 @@ namespace API.P.Movies.Services
 
         public async Task<bool> DeleteMovieAsync(int id)
         {
-            throw new NotImplementedException();
+            var movie = await _movieRepository.GetMovieAsync(id);
+            return _mapper.Map<MovieDto>(movie);
         }
 
         public async Task<MovieDto> GetMovieAsync(int id)
