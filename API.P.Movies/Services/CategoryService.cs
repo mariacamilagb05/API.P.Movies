@@ -16,22 +16,41 @@ namespace API.P.Movies.Services
             _mapper = mapper;
         }
 
-        public Task<bool> CategoryExistsByIdAsync(int id)
+        public async Task<bool> CategoryExistsByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> CategoryExistsByNameAsync(string name)
+        public async Task<bool> CategoryExistsByNameAsync(string name)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> CreateCategoryAsync(Category category)
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryCreateDto categoryCreateDto)
         {
-            throw new NotImplementedException();
+            var categoryExists = await _categoryRepository.CategoryExistsByNameAsync(categoryCreateDto.Name);
+            
+            if (categoryExists)
+            {
+                throw new InvalidOperationException($"Ya existe una categoría con el nombre '{categoryCreateDto.Name}'");
+            }
+
+            //Mappear de DTO a la entidad/modelo Category
+            var category = _mapper.Map<Category>(categoryCreateDto);
+
+            //Crear la categoría en la base de datos
+            var categoryCreated = await _categoryRepository.CreateCategoryAsync(category);
+
+            if (!categoryCreated)
+            {
+                throw new InvalidOperationException("Ocurrió un error al crear la categoría");
+            }
+
+            var categoryDto = _mapper.Map<CategoryDto>(category);
+            return categoryDto;
         }
 
-        public Task<bool> DeleteCategoryAsync(int id)
+        public async Task<bool> DeleteCategoryAsync(int id)
         {
             throw new NotImplementedException();
         }
@@ -49,7 +68,7 @@ namespace API.P.Movies.Services
             return _mapper.Map<CategoryDto>(category); //Mapeo la categoría a un CategoryDto y lo retorno
         }
 
-        public Task<bool> UpdateCategoryAsync(Category category)
+        public async Task<bool> UpdateCategoryAsync(Category category)
         {
             throw new NotImplementedException();
         }

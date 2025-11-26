@@ -12,6 +12,21 @@ namespace API.P.Movies.Repository
         {
             _context = context;
         }
+
+        public async Task<bool> MovieExistsByIdAsync(int id)
+        {
+            return await _context.Movies
+                .AsNoTracking()
+                .AnyAsync(m => m.Id == id);
+        }
+
+        public async Task<bool> MovieExistsByNameAsync(string name)
+        {
+            return await _context.Movies
+                .AsNoTracking()
+                .AnyAsync(m => m.Name == name);
+        }
+
         public async Task<bool> CreateMovieAsync(Movie movie)
         {
             movie.CreatedDate = DateTime.UtcNow;

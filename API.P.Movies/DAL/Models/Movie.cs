@@ -12,11 +12,11 @@ namespace API.P.Movies.DAL.Models
         [Display(Name = "Duración de la película")]
         public int Duration { get; set; }
 
-        [Display(Name = "Duración de la película")]
+        [Display(Name = "Descripción de la película")]
         public String? Description { get; set; }
 
         [Required]
-        [Display(Name = "Duración de la película")]
+        [Display(Name = "Clasificación de la película")]
         public String Clasification { get; set; }
     }
 }
