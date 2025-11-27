@@ -50,11 +50,6 @@ namespace API.P.Movies.Services
             return movieDto;
         }
 
-        public async Task<bool> DeleteMovieAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<MovieDto> GetMovieAsync(int id)
         {
             var movie = await _movieRepository.GetMovieAsync(id); //Llamo al método del repositorio
@@ -98,6 +93,27 @@ namespace API.P.Movies.Services
             }
 
             return _mapper.Map<MovieDto>(existingMovie);
+        }
+
+        public async Task<bool> DeleteMovieAsync(int id)
+        {
+            //Verificar si la película existe
+            var existingMovie = await _movieRepository.GetMovieAsync(id);
+
+            if (existingMovie == null)
+            {
+                throw new InvalidOperationException($"No se encontró la película con Id {id}");
+            }
+
+            //Eliminar la película en la base de datos
+            var movieDeleted = await _movieRepository.DeleteMovieAsync(id);
+
+            if (!movieDeleted)
+            {
+                throw new InvalidOperationException("Ocurrió un error al eliminar la película");
+            }
+
+            return movieDeleted;
         }
     }
 }

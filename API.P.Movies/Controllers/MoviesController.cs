@@ -95,5 +95,28 @@ namespace API.P.Movies.Controllers
             }
         }
 
+        [HttpDelete("{id:int}", Name = "DeleteMovieAsync")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteMovieAsync(int id)
+        {
+            try
+            {
+                var deletedMovie = await _movieService.DeleteMovieAsync(id);
+
+                return NoContent();
+            }
+            catch (InvalidOperationException Ex) when (Ex.Message.Contains("No se encontró"))
+            {
+                return NotFound(new { message = Ex.Message });
+            }
+            catch (Exception Ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = Ex.Message });
+            }
+        }
+
     }
 }
