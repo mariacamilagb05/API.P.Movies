@@ -106,7 +106,7 @@ namespace API.P.Movies.Controllers
             {
                 var deletedMovie = await _movieService.DeleteMovieAsync(id);
 
-                return NoContent();
+                return Ok(deletedMovie);
             }
             catch (InvalidOperationException Ex) when (Ex.Message.Contains("No se encontró"))
             {
